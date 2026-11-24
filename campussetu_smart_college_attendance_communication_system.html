@@ -1,0 +1,1847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CampusSetu — Smart College Attendance &amp; Communication System</title>
+  <!-- Load Inter font and Tailwind CSS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    /* Custom subtle scrollbars for lists and chat threads */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-900 flex flex-col antialiased">
+  <!-- TOP NAVIGATION BAR -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+      <!-- Brand Logo & Active Class Badge -->
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-9 h-9 rounded-lg bg-slate-900 text-white flex items-center justify-center shrink-0">
+          <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M12 3L2 8l10 5 10-5-10-5z" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M6 10.5v5c0 1.8 2.7 3.5 6 3.5s6-1.7 6-3.5v-5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+        <div class="min-w-0 flex items-center gap-2">
+          <span class="font-semibold text-base tracking-tight text-slate-900">CampusSetu</span>
+          <span id="headerClassBadge" class="hidden sm:inline-block text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200 truncate">
+            TY BCA • Semester V (A) • Room 305
+          </span>
+        </div>
+      </div>
+
+      <!-- Header Action Buttons -->
+      <div class="flex items-center gap-2 shrink-0">
+        <button
+          type="button"
+          id="facultyNoticeBtn"
+          class="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 transition-colors cursor-pointer"
+        >
+          <svg class="w-3.5 h-3.5 text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <span class="hidden sm:inline">Faculty Notice</span>
+          <span id="facultyBadgeCount" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-blue-600 text-white text-[10px] font-semibold">
+            1
+          </span>
+        </button>
+
+        <button
+          type="button"
+          id="resetPrototypeBtn"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 transition-colors cursor-pointer"
+        >
+          <svg class="w-3.5 h-3.5 text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M3 3v5h5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <span>Reset</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- MOBILE & TABLET HORIZONTAL NAVIGATION -->
+    <div id="mobileNav" class="lg:hidden border-t border-slate-100 bg-white px-4 py-2 flex items-center gap-1.5 overflow-x-auto">
+      <button type="button" data-view="cr" class="nav-btn-mobile inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors cursor-pointer bg-slate-900 text-white">
+        CR Workspace
+      </button>
+      <button type="button" data-view="teacher" class="nav-btn-mobile inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors cursor-pointer text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+        Teacher &amp; Lectures
+      </button>
+      <button type="button" data-view="student" class="nav-btn-mobile inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors cursor-pointer text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+        Student Portal
+      </button>
+      <button type="button" data-view="parent" class="nav-btn-mobile inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors cursor-pointer text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+        Parent Dashboard
+      </button>
+      <button type="button" data-view="groups" class="nav-btn-mobile inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors cursor-pointer text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+        Groups &amp; Polls
+      </button>
+    </div>
+  </header>
+
+  <!-- LIVE SYNCHRONIZED UPDATE BANNER -->
+  <div id="statusBanner" class="hidden bg-blue-50/90 border-b border-blue-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between gap-3 text-xs">
+      <div class="flex items-center gap-2 min-w-0">
+        <svg class="w-4 h-4 text-blue-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke-linecap="round" stroke-linejoin="round" />
+          <polyline points="22 4 12 14.01 9 11.01" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <span id="bannerTitle" class="font-semibold text-slate-900 truncate"></span>
+        <span id="bannerDetail" class="text-slate-600 truncate hidden md:inline"></span>
+      </div>
+      <div class="flex items-center gap-3 shrink-0">
+        <span id="bannerTimestamp" class="text-slate-500 font-mono text-[11px]"></span>
+        <button
+          type="button"
+          id="dismissBannerBtn"
+          class="text-slate-400 hover:text-slate-700 cursor-pointer"
+          aria-label="Dismiss update"
+        >
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18" stroke-linecap="round" />
+            <line x1="6" y1="6" x2="18" y2="18" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APPLICATION WORKSPACE -->
+  <div class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <!-- DESKTOP SIDEBAR -->
+    <aside class="hidden lg:flex lg:col-span-3 flex-col gap-4 sticky top-20">
+      <div class="bg-white rounded-xl border border-slate-200 p-2">
+        <div class="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+          Role Modules
+        </div>
+        <nav id="desktopNav" class="space-y-1" aria-label="Role modules">
+          <button type="button" data-view="cr" class="nav-btn-desktop w-full text-left px-3 py-2.5 rounded-lg flex items-center justify-between gap-2 transition-colors cursor-pointer bg-slate-900 text-white">
+            <div class="min-w-0">
+              <div class="text-xs font-semibold truncate">CR Workspace</div>
+              <div class="nav-desc text-[11px] truncate text-slate-300">Class info, timetable &amp; roster</div>
+            </div>
+            <span class="text-xs text-slate-400">&rsaquo;</span>
+          </button>
+
+          <button type="button" data-view="teacher" class="nav-btn-desktop w-full text-left px-3 py-2.5 rounded-lg flex items-center justify-between gap-2 transition-colors cursor-pointer text-slate-700 hover:bg-slate-100">
+            <div class="min-w-0">
+              <div class="text-xs font-semibold truncate">Teacher &amp; Lectures</div>
+              <div class="nav-desc text-[11px] truncate text-slate-500">Attendance, notes &amp; free slots</div>
+            </div>
+            <span class="text-xs text-slate-300">&rsaquo;</span>
+          </button>
+
+          <button type="button" data-view="student" class="nav-btn-desktop w-full text-left px-3 py-2.5 rounded-lg flex items-center justify-between gap-2 transition-colors cursor-pointer text-slate-700 hover:bg-slate-100">
+            <div class="min-w-0">
+              <div class="text-xs font-semibold truncate">Student Portal</div>
+              <div class="nav-desc text-[11px] truncate text-slate-500">Attendance, notes &amp; location</div>
+            </div>
+            <span class="text-xs text-slate-300">&rsaquo;</span>
+          </button>
+
+          <button type="button" data-view="parent" class="nav-btn-desktop w-full text-left px-3 py-2.5 rounded-lg flex items-center justify-between gap-2 transition-colors cursor-pointer text-slate-700 hover:bg-slate-100">
+            <div class="min-w-0">
+              <div class="text-xs font-semibold truncate">Parent Dashboard</div>
+              <div class="nav-desc text-[11px] truncate text-slate-500">Alerts, reports &amp; campus entry</div>
+            </div>
+            <span class="text-xs text-slate-300">&rsaquo;</span>
+          </button>
+
+          <button type="button" data-view="groups" class="nav-btn-desktop w-full text-left px-3 py-2.5 rounded-lg flex items-center justify-between gap-2 transition-colors cursor-pointer text-slate-700 hover:bg-slate-100">
+            <div class="min-w-0">
+              <div class="text-xs font-semibold truncate">Groups &amp; Polls</div>
+              <div class="nav-desc text-[11px] truncate text-slate-500">Class, faculty &amp; parent threads</div>
+            </div>
+            <span class="text-xs text-slate-300">&rsaquo;</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- LIVE CLASS SNAPSHOT CARD -->
+      <div class="bg-white rounded-xl border border-slate-200 p-4 space-y-3">
+        <div class="text-xs font-semibold text-slate-900">Class Snapshot</div>
+        <dl class="space-y-2 text-xs">
+          <div class="flex justify-between">
+            <dt class="text-slate-500">Class &amp; Section</dt>
+            <dd id="snapClassSection" class="font-medium text-slate-900">TY BCA (A)</dd>
+          </div>
+          <div class="flex justify-between">
+            <dt class="text-slate-500">Assigned Room</dt>
+            <dd id="snapRoom" class="font-medium text-slate-900">Room 305</dd>
+          </div>
+          <div class="flex justify-between">
+            <dt class="text-slate-500">Enrolled Students</dt>
+            <dd id="snapStrength" class="font-medium text-slate-900">58</dd>
+          </div>
+          <div class="flex justify-between">
+            <dt class="text-slate-500">Rahul Attendance</dt>
+            <dd id="snapAttendance" class="font-semibold text-emerald-700">88%</dd>
+          </div>
+          <div class="flex justify-between">
+            <dt class="text-slate-500">Campus Geofence</dt>
+            <dd id="snapGeofence" class="font-medium text-emerald-700">Inside Campus</dd>
+          </div>
+        </dl>
+      </div>
+    </aside>
+
+    <!-- ACTIVE MODULE PANEL -->
+    <main class="lg:col-span-9 space-y-6">
+      <!-- ================================================================= -->
+      <!-- 1. CR WORKSPACE VIEW                                              -->
+      <!-- ================================================================= -->
+      <section id="view-cr" class="view-section space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+          <div>
+            <h1 class="text-xl font-semibold tracking-tight text-slate-900">
+              Class Representative Workspace
+            </h1>
+            <p class="text-sm text-slate-500 mt-0.5">
+              Maintain class metadata, weekly lecture slots, student roster, and notices.
+            </p>
+          </div>
+          <span id="crNameLabel" class="text-xs text-slate-500">CR: Aarav Deshmukh</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Class Details Form -->
+          <form id="classDetailsForm" class="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h2 class="text-sm font-semibold text-slate-900">Class Details</h2>
+              <span class="text-[11px] text-slate-400">Syncs with Faculty</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 text-xs">
+              <label class="space-y-1">
+                <span class="font-medium text-slate-700">Program / Class</span>
+                <input
+                  type="text"
+                  id="inputProgram"
+                  class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-blue-600"
+                />
+              </label>
+
+              <label class="space-y-1">
+                <span class="font-medium text-slate-700">Semester</span>
+                <select
+                  id="inputSemester"
+                  class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-blue-600"
+                >
+                  <option value="Semester III">Semester III</option>
+                  <option value="Semester V">Semester V</option>
+                  <option value="Semester VI">Semester VI</option>
+                </select>
+              </label>
+
+              <label class="space-y-1">
+                <span class="font-medium text-slate-700">Section</span>
+                <input
+                  type="text"
+                  id="inputSection"
+                  class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-blue-600"
+                />
+              </label>
+
+              <label class="space-y-1">
+                <span class="font-medium text-slate-700">Room / Venue</span>
+                <input
+                  type="text"
+                  id="inputRoom"
+                  class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-blue-600"
+                />
+              </label>
+
+              <label class="col-span-2 space-y-1">
+                <span class="font-medium text-slate-700">Total Students</span>
+                <input
+                  type="number"
+                  id="inputStrength"
+                  class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-blue-600"
+                />
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              class="w-full py-2 px-4 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium transition-colors cursor-pointer"
+            >
+              Update Class Details &amp; Notify Teachers
+            </button>
+          </form>
+
+          <!-- Student Roster & Quick Announcement -->
+          <div class="space-y-6">
+            <div class="bg-white rounded-xl border border-slate-200 p-5 space-y-3">
+              <div class="flex items-center justify-between">
+                <h2 class="text-sm font-semibold text-slate-900">Student Roster</h2>
+                <span id="rosterCountLabel" class="text-xs text-slate-500">58 total</span>
+              </div>
+
+              <form id="addStudentForm" class="flex gap-2">
+                <input
+                  type="text"
+                  id="newStudentInput"
+                  placeholder="Add student full name"
+                  class="flex-1 px-3 py-1.5 rounded-lg border border-slate-300 text-xs focus:outline-none focus:border-blue-600"
+                />
+                <button
+                  type="submit"
+                  class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium cursor-pointer"
+                >
+                  + Add
+                </button>
+              </form>
+
+              <div id="crRosterList" class="divide-y divide-slate-100 max-h-40 overflow-y-auto text-xs"></div>
+            </div>
+
+            <form id="crNoticeForm" class="bg-white rounded-xl border border-slate-200 p-5 space-y-3">
+              <h2 class="text-sm font-semibold text-slate-900">Send Class Notice</h2>
+              <textarea
+                id="crNoticeInput"
+                rows="2"
+                placeholder="Write a schedule or lab reminder for the class..."
+                class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:border-blue-600 resize-none"
+              ></textarea>
+              <button
+                type="submit"
+                class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 text-xs font-medium cursor-pointer"
+              >
+                Post to Class Group
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Weekly Timetable Table -->
+        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3">
+            <div>
+              <h2 class="text-sm font-semibold text-slate-900">Weekly Timetable</h2>
+              <p class="text-xs text-slate-500">Edit subject or time slots inline and save.</p>
+            </div>
+            <button
+              type="button"
+              id="saveTimetableBtn"
+              class="px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium cursor-pointer"
+            >
+              Save Timetable
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="border-b border-slate-200 bg-slate-50 text-slate-500 font-medium">
+                  <th class="py-2.5 px-4">Day</th>
+                  <th class="py-2.5 px-4">Subject</th>
+                  <th class="py-2.5 px-4">Time</th>
+                  <th class="py-2.5 px-4">Faculty</th>
+                </tr>
+              </thead>
+              <tbody id="timetableBody" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- 2. TEACHER & FREE LECTURE MANAGEMENT VIEW                         -->
+      <!-- ================================================================= -->
+      <section id="view-teacher" class="view-section hidden space-y-6">
+        <div>
+          <h1 class="text-xl font-semibold tracking-tight text-slate-900">
+            Teacher Workspace &amp; Free Lecture Management
+          </h1>
+          <p class="text-sm text-slate-500 mt-0.5">
+            Record attendance, upload lecture notes, and coordinate substitution slots.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Mark Attendance Card -->
+          <div class="bg-white rounded-xl border border-slate-200 p-5 flex flex-col justify-between space-y-4">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div>
+                  <h2 class="text-sm font-semibold text-slate-900">Mark Attendance</h2>
+                  <p id="attendanceSubtitle" class="text-xs text-slate-500">Data Structures • 10:00 AM • Room 305</p>
+                </div>
+                <div class="flex items-center gap-1" id="rosterFilterGroup">
+                  <button type="button" data-filter="ALL" class="roster-filter-btn px-2 py-1 rounded text-[11px] font-medium cursor-pointer bg-slate-900 text-white">All</button>
+                  <button type="button" data-filter="PRESENT" class="roster-filter-btn px-2 py-1 rounded text-[11px] font-medium cursor-pointer text-slate-600 hover:bg-slate-100">Present</button>
+                  <button type="button" data-filter="ABSENT" class="roster-filter-btn px-2 py-1 rounded text-[11px] font-medium cursor-pointer text-slate-600 hover:bg-slate-100">Absent</button>
+                </div>
+              </div>
+
+              <div id="teacherRosterList" class="divide-y divide-slate-100"></div>
+            </div>
+
+            <button
+              type="button"
+              id="submitAttendanceBtn"
+              class="w-full py-2 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors cursor-pointer"
+            >
+              Submit Attendance &amp; Notify Parents
+            </button>
+          </div>
+
+          <!-- Upload Notes Form -->
+          <form id="uploadNoteForm" class="bg-white rounded-xl border border-slate-200 p-5 space-y-4 flex flex-col justify-between">
+            <div class="space-y-3.5 text-xs">
+              <div class="border-b border-slate-100 pb-3">
+                <h2 class="text-sm font-semibold text-slate-900">Upload Lecture Notes</h2>
+                <p class="text-xs text-slate-500">Share PDF slides or presentations with the class.</p>
+              </div>
+
+              <label class="block space-y-1">
+                <span class="font-medium text-slate-700">Subject</span>
+                <select
+                  id="noteSubjectSelect"
+                  class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-blue-600"
+                >
+                  <option value="Data Structures">Data Structures</option>
+                  <option value="Database Management Systems">Database Management Systems</option>
+                  <option value="Operating Systems">Operating Systems</option>
+                  <option value="Web Technologies">Web Technologies</option>
+                </select>
+              </label>
+
+              <label class="block space-y-1">
+                <span class="font-medium text-slate-700">Document Title</span>
+                <input
+                  type="text"
+                  id="noteTitleInput"
+                  placeholder="e.g. DS_Lecture_03_Graphs"
+                  class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:border-blue-600"
+                />
+              </label>
+
+              <div class="space-y-1">
+                <span class="font-medium text-slate-700 block">File Format</span>
+                <div class="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    data-format="PDF"
+                    class="note-format-choice py-2 rounded-lg border font-medium cursor-pointer bg-slate-900 text-white border-slate-900"
+                  >
+                    PDF Document
+                  </button>
+                  <button
+                    type="button"
+                    data-format="PPTX"
+                    class="note-format-choice py-2 rounded-lg border font-medium cursor-pointer bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
+                  >
+                    PPTX Document
+                  </button>
+                </div>
+              </div>
+
+              <div id="recentNotePreview" class="p-3 rounded-lg bg-slate-50 border border-dashed border-slate-300 text-slate-500"></div>
+            </div>
+
+            <button
+              type="submit"
+              class="w-full py-2 px-4 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium transition-colors cursor-pointer"
+            >
+              Publish Notes to Class
+            </button>
+          </form>
+        </div>
+
+        <!-- Free Lecture Management Container -->
+        <div id="freeLecturesContainer"></div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- 3. STUDENT PORTAL VIEW                                            -->
+      <!-- ================================================================= -->
+      <section id="view-student" class="view-section hidden space-y-6">
+        <div>
+          <h1 class="text-xl font-semibold tracking-tight text-slate-900">Student Portal</h1>
+          <p id="studentHeaderMeta" class="text-sm text-slate-500 mt-0.5">
+            Rahul Sharma • Roll 01 • TY BCA Semester V (A)
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Attendance Overview -->
+          <div class="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <h2 class="text-sm font-semibold text-slate-900">Attendance</h2>
+              <span id="studentEligibilityBadge" class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                Eligible
+              </span>
+            </div>
+
+            <div class="flex items-baseline gap-2">
+              <span id="studentOverallRate" class="text-3xl font-bold text-slate-900">88%</span>
+              <span class="text-xs text-slate-500">overall</span>
+            </div>
+
+            <div id="subjectAttendanceList" class="space-y-2.5 pt-1 text-xs"></div>
+          </div>
+
+          <!-- Course Notes Repository -->
+          <div class="md:col-span-2 bg-white rounded-xl border border-slate-200 p-5 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <h2 class="text-sm font-semibold text-slate-900">Course Notes</h2>
+              <div class="flex items-center gap-1.5 text-xs" id="studentNoteFormatFilters">
+                <button type="button" data-note-filter="ALL" class="student-note-filter px-2.5 py-1 rounded-md border font-medium cursor-pointer bg-slate-900 text-white border-slate-900">All Files</button>
+                <button type="button" data-note-filter="PDF" class="student-note-filter px-2.5 py-1 rounded-md border font-medium cursor-pointer bg-white text-slate-600 border-slate-300 hover:bg-slate-50">PDF</button>
+                <button type="button" data-note-filter="PPTX" class="student-note-filter px-2.5 py-1 rounded-md border font-medium cursor-pointer bg-white text-slate-600 border-slate-300 hover:bg-slate-50">PPTX</button>
+              </div>
+            </div>
+
+            <input
+              type="text"
+              id="studentNoteSearch"
+              placeholder="Search by subject, filename, or faculty"
+              class="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs focus:outline-none focus:border-blue-600"
+            />
+
+            <div id="studentNotesList" class="divide-y divide-slate-100"></div>
+          </div>
+        </div>
+
+        <!-- Location Sharing & Timetable -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-white rounded-xl border border-slate-200 p-5 space-y-4 text-xs">
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-sm font-semibold text-slate-900">Campus Location Sharing</h2>
+                <p class="text-xs text-slate-500">Controls visibility of campus presence to parents.</p>
+              </div>
+              <button
+                type="button"
+                id="toggleShareLocationBtn"
+                class="px-3 py-1.5 rounded-lg font-medium border cursor-pointer bg-emerald-50 text-emerald-700 border-emerald-200"
+              >
+                Sharing Active
+              </button>
+            </div>
+
+            <div id="studentGeofenceBox" class="p-3.5 rounded-lg bg-slate-50 border border-slate-200 space-y-1"></div>
+
+            <div class="flex gap-2">
+              <button
+                type="button"
+                id="studentEnterCampusBtn"
+                class="flex-1 py-2 px-3 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-medium cursor-pointer"
+              >
+                Simulate Campus Entry
+              </button>
+              <button
+                type="button"
+                id="studentExitCampusBtn"
+                class="flex-1 py-2 px-3 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 font-medium cursor-pointer"
+              >
+                Simulate Campus Exit
+              </button>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl border border-slate-200 p-5 space-y-3 text-xs">
+            <h2 class="text-sm font-semibold text-slate-900">Class Timetable</h2>
+            <div id="studentTimetableList" class="divide-y divide-slate-100"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- 4. PARENT DASHBOARD VIEW                                          -->
+      <!-- ================================================================= -->
+      <section id="view-parent" class="view-section hidden space-y-6">
+        <div>
+          <h1 class="text-xl font-semibold tracking-tight text-slate-900">Parent Dashboard</h1>
+          <p id="parentHeaderMeta" class="text-sm text-slate-500 mt-0.5">
+            Monitoring Rahul Sharma • TY BCA (A)
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="bg-white rounded-xl border border-slate-200 p-4">
+            <div class="text-xs text-slate-500">Attendance Rate</div>
+            <div id="parentAttendanceRate" class="text-2xl font-bold text-slate-900 mt-1">88%</div>
+            <div class="text-xs text-emerald-700 mt-1">Regular standing</div>
+          </div>
+
+          <div class="bg-white rounded-xl border border-slate-200 p-4">
+            <div class="text-xs text-slate-500">Campus Status</div>
+            <div id="parentCampusStatus" class="text-lg font-semibold text-slate-900 mt-1">Inside Campus</div>
+            <div id="parentCampusTime" class="text-xs text-slate-500 mt-1">Entry at 08:53 AM</div>
+          </div>
+
+          <div class="bg-white rounded-xl border border-slate-200 p-4">
+            <div class="text-xs text-slate-500">Shared Notes</div>
+            <div id="parentNotesCount" class="text-2xl font-bold text-slate-900 mt-1">4</div>
+            <div id="parentLatestNote" class="text-xs text-slate-500 mt-1 truncate"></div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-white rounded-xl border border-slate-200 p-5 space-y-3">
+            <h2 class="text-sm font-semibold text-slate-900">Recent Notifications</h2>
+            <div id="parentAlertsList" class="divide-y divide-slate-100 max-h-80 overflow-y-auto pr-1"></div>
+          </div>
+
+          <div class="bg-white rounded-xl border border-slate-200 p-5 space-y-4 text-xs">
+            <h2 class="text-sm font-semibold text-slate-900">Geofence &amp; Check-In Controls</h2>
+            <div id="parentGeofenceBox" class="p-3.5 rounded-lg bg-slate-50 border border-slate-200 space-y-1"></div>
+            <div class="flex gap-2">
+              <button
+                type="button"
+                id="parentEnterCampusBtn"
+                class="flex-1 py-2 px-3 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-medium cursor-pointer"
+              >
+                Record Campus Entry
+              </button>
+              <button
+                type="button"
+                id="parentExitCampusBtn"
+                class="flex-1 py-2 px-3 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 font-medium cursor-pointer"
+              >
+                Record Campus Exit
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- 5. GROUPS & POLLS VIEW                                            -->
+      <!-- ================================================================= -->
+      <section id="view-groups" class="view-section hidden space-y-6">
+        <div>
+          <h1 class="text-xl font-semibold tracking-tight text-slate-900">
+            Group Channels &amp; Class Poll
+          </h1>
+          <p class="text-sm text-slate-500 mt-0.5">
+            Separate communication spaces for class members, faculty, and parents.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Channel Thread Card -->
+          <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-5 flex flex-col justify-between space-y-4">
+            <div class="space-y-4">
+              <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                <div class="flex items-center gap-1.5" id="channelTabs">
+                  <button type="button" data-channel="class" class="channel-tab px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer bg-slate-900 text-white">
+                    Class Group
+                  </button>
+                  <button type="button" data-channel="faculty" class="channel-tab px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer text-slate-600 hover:bg-slate-100">
+                    Teachers Group
+                  </button>
+                  <button type="button" data-channel="parents" class="channel-tab px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer text-slate-600 hover:bg-slate-100">
+                    Parents Group
+                  </button>
+                </div>
+
+                <select
+                  id="channelKindFilter"
+                  class="px-2.5 py-1 rounded-lg border border-slate-300 text-xs bg-white text-slate-700"
+                >
+                  <option value="ALL">All Posts</option>
+                  <option value="Announcement">Announcements</option>
+                  <option value="Note">Notes</option>
+                  <option value="Message">Messages</option>
+                </select>
+              </div>
+
+              <div id="channelMessagesList" class="space-y-3 max-h-80 overflow-y-auto pr-1"></div>
+            </div>
+
+            <form id="channelMessageForm" class="flex flex-col sm:flex-row gap-2 pt-2 border-t border-slate-100">
+              <select
+                id="messageKindSelect"
+                class="px-2.5 py-2 rounded-lg border border-slate-300 text-xs bg-white text-slate-700"
+              >
+                <option value="Message">Message</option>
+                <option value="Announcement">Announcement</option>
+              </select>
+              <input
+                type="text"
+                id="messageDraftInput"
+                placeholder="Write a message..."
+                class="flex-1 px-3 py-2 rounded-lg border border-slate-300 text-xs focus:outline-none focus:border-blue-600"
+              />
+              <button
+                type="submit"
+                class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium cursor-pointer"
+              >
+                Send
+              </button>
+            </form>
+          </div>
+
+          <!-- Class Poll Card -->
+          <div class="bg-white rounded-xl border border-slate-200 p-5 space-y-4 text-xs h-fit">
+            <div class="text-xs font-semibold text-slate-900">Active Poll</div>
+            <p id="pollQuestionText" class="text-slate-700 leading-relaxed font-medium"></p>
+
+            <div class="space-y-2">
+              <button
+                type="button"
+                id="voteYesBtn"
+                class="w-full py-2 px-3 rounded-lg border text-left font-medium flex justify-between cursor-pointer bg-white border-slate-300 text-slate-800 hover:bg-slate-50"
+              >
+                <span>Yes, conduct session</span>
+                <span id="voteYesPct">88%</span>
+              </button>
+
+              <button
+                type="button"
+                id="voteNoBtn"
+                class="w-full py-2 px-3 rounded-lg border text-left font-medium flex justify-between cursor-pointer bg-white border-slate-300 text-slate-800 hover:bg-slate-50"
+              >
+                <span>No, keep regular hours</span>
+                <span id="voteNoPct">12%</span>
+              </button>
+            </div>
+
+            <div id="pollTotalVotes" class="text-[11px] text-slate-500 pt-1 border-t border-slate-100">
+              Total votes: 50
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- FACULTY NOTICE MODAL -->
+  <div id="facultyNoticeModal" class="hidden fixed inset-0 z-50 bg-slate-900/40 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl border border-slate-200 max-w-md w-full p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="text-sm font-semibold text-slate-900">Faculty Class Update</h3>
+        <button type="button" id="closeFacultyModalBtn" class="text-slate-400 hover:text-slate-700 cursor-pointer" aria-label="Close modal">
+          &times;
+        </button>
+      </div>
+      <div id="facultyModalBody" class="text-xs text-slate-600 space-y-2"></div>
+      <button type="button" id="doneFacultyModalBtn" class="w-full py-2 rounded-lg bg-slate-900 text-white text-xs font-medium cursor-pointer">
+        Close
+      </button>
+    </div>
+  </div>
+
+  <!-- NOTE PREVIEW MODAL -->
+  <div id="notePreviewModal" class="hidden fixed inset-0 z-50 bg-slate-900/40 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl border border-slate-200 max-w-md w-full p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 id="noteModalTitle" class="text-sm font-semibold text-slate-900 truncate pr-2"></h3>
+        <button type="button" id="closeNoteModalBtn" class="text-slate-400 hover:text-slate-700 cursor-pointer" aria-label="Close preview">
+          &times;
+        </button>
+      </div>
+      <div id="noteModalBody" class="text-xs text-slate-600 space-y-2 bg-slate-50 p-3.5 rounded-lg border border-slate-200"></div>
+      <button type="button" id="doneNoteModalBtn" class="w-full py-2 rounded-lg bg-slate-900 text-white text-xs font-medium cursor-pointer">
+        Done
+      </button>
+    </div>
+  </div>
+
+  <!-- VANILLA JAVASCRIPT STATE & UI ENGINE -->
+  <script>
+    (function () {
+      'use strict';
+
+      // --- INITIAL PROTOTYPE DATA ---
+      const INITIAL_DATA = {
+        classInfo: {
+          department: 'Department of Computer Applications',
+          program: 'TY BCA',
+          semester: 'Semester V',
+          section: 'A',
+          room: '305',
+          strength: 58,
+          crName: 'Aarav Deshmukh',
+        },
+        timetable: [
+          { id: 'tt-1', day: 'Monday', time: '10:00 AM', subject: 'Data Structures', faculty: 'Prof. Anjali Verma', room: '305' },
+          { id: 'tt-2', day: 'Tuesday', time: '11:00 AM', subject: 'Database Management Systems', faculty: 'Prof. Rohit Singh', room: '305' },
+          { id: 'tt-3', day: 'Wednesday', time: '10:00 AM', subject: 'Operating Systems', faculty: 'Prof. Neha Patel', room: '302' },
+          { id: 'tt-4', day: 'Thursday', time: '02:00 PM', subject: 'Web Technologies', faculty: 'Prof. Karan Mehta', room: 'Lab 2' },
+          { id: 'tt-5', day: 'Friday', time: '11:00 AM', subject: 'Artificial Intelligence', faculty: 'Prof. Anjali Verma', room: '305' },
+        ],
+        roster: [
+          { id: 'st-1', roll: '01', name: 'Rahul Sharma', status: 'Present' },
+          { id: 'st-2', roll: '02', name: 'Pooja Kulkarni', status: 'Present' },
+          { id: 'st-3', roll: '03', name: 'Rohit Singh', status: 'Absent' },
+          { id: 'st-4', roll: '04', name: 'Neha Patel', status: 'Present' },
+          { id: 'st-5', roll: '05', name: 'Karan Mehta', status: 'Late' },
+          { id: 'st-6', roll: '06', name: 'Sneha Joshi', status: 'Present' },
+        ],
+        notes: [
+          {
+            id: 'n-1',
+            subject: 'Data Structures',
+            title: 'DS_Lecture_02_Trees_and_Traversals.pdf',
+            size: '2.4 MB',
+            format: 'PDF',
+            author: 'Prof. Anjali Verma',
+            uploadedAt: 'Today, 10:15 AM',
+          },
+          {
+            id: 'n-2',
+            subject: 'Data Structures',
+            title: 'DS_Lecture_01_Complexity_Slides.pptx',
+            size: '3.1 MB',
+            format: 'PPTX',
+            author: 'Prof. Anjali Verma',
+            uploadedAt: '22 May, 02:30 PM',
+          },
+          {
+            id: 'n-3',
+            subject: 'Operating Systems',
+            title: 'OS_CPU_Scheduling_Notes.pdf',
+            size: '2.1 MB',
+            format: 'PDF',
+            author: 'Prof. Neha Patel',
+            uploadedAt: '21 May, 11:45 AM',
+          },
+          {
+            id: 'n-4',
+            subject: 'Database Management Systems',
+            title: 'DBMS_Normalization_Guide.pptx',
+            size: '3.0 MB',
+            format: 'PPTX',
+            author: 'Prof. Rohit Singh',
+            uploadedAt: '20 May, 04:10 PM',
+          },
+        ],
+        freeSlots: [
+          {
+            id: 'fl-101',
+            subject: 'Data Structures (Substitution)',
+            slot: 'Today, 10:00 AM – 11:00 AM',
+            room: 'Room 305',
+            reason: 'Scheduled faculty on academic leave',
+            status: 'ASSIGNED',
+            assignedTo: 'Prof. Anjali Verma',
+            volunteers: [
+              { id: 'v-1', name: 'Prof. Anjali Verma', dept: 'Computer Applications', volunteered: true },
+              { id: 'v-2', name: 'Prof. Rohit Singh', dept: 'Computer Applications', volunteered: true },
+              { id: 'v-3', name: 'Prof. Neha Patel', dept: 'Computer Science', volunteered: false },
+              { id: 'v-4', name: 'Prof. Karan Mehta', dept: 'Information Tech', volunteered: false },
+            ],
+          },
+        ],
+        alerts: [
+          {
+            id: 'al-1',
+            category: 'Attendance',
+            title: 'Attendance recorded for Data Structures',
+            detail: 'Rahul Sharma marked Present • TY BCA Sem V (A)',
+            timestamp: '10:01 AM',
+          },
+          {
+            id: 'al-2',
+            category: 'Campus Safety',
+            title: 'Entered college campus geofence',
+            detail: 'Main Gate checkpoint • Rahul Sharma',
+            timestamp: '08:53 AM',
+          },
+          {
+            id: 'al-3',
+            category: 'Coursework',
+            title: 'New lecture notes published',
+            detail: 'DS_Lecture_02_Trees_and_Traversals.pdf by Prof. Anjali Verma',
+            timestamp: '10:15 AM',
+          },
+          {
+            id: 'al-4',
+            category: 'Timetable',
+            title: 'Free lecture slot assigned',
+            detail: 'Data Structures (10:00 AM) assigned to Prof. Anjali Verma',
+            timestamp: '09:10 AM',
+          },
+        ],
+        threads: {
+          class: [
+            {
+              id: 'c-1',
+              sender: 'Prof. Anjali Verma',
+              role: 'Faculty',
+              kind: 'Note',
+              body: 'Uploaded Lecture 02 notes on binary trees and traversals. Review before Thursday’s tutorial.',
+              file: 'DS_Lecture_02_Trees_and_Traversals.pdf',
+              time: '10:15 AM',
+            },
+            {
+              id: 'c-2',
+              sender: 'Rahul Sharma',
+              role: 'Roll 01',
+              kind: 'Message',
+              body: 'Thank you ma’am. Are AVL rotation examples included in the second half?',
+              time: '10:17 AM',
+            },
+            {
+              id: 'c-3',
+              sender: 'Prof. Anjali Verma',
+              role: 'Faculty',
+              kind: 'Announcement',
+              body: 'Yes, AVL single and double rotations start on page 6.',
+              time: '10:18 AM',
+            },
+          ],
+          faculty: [
+            {
+              id: 'f-1',
+              sender: 'Aarav Deshmukh',
+              role: 'CR • TY BCA',
+              kind: 'Announcement',
+              body: 'Room 305 projector and attendance sheet are ready for the 10:00 AM session.',
+              time: '09:42 AM',
+            },
+            {
+              id: 'f-2',
+              sender: 'Prof. Rohit Singh',
+              role: 'Faculty • DBMS',
+              kind: 'Message',
+              body: 'Available for any afternoon substitution slots after 1:30 PM.',
+              time: '09:50 AM',
+            },
+          ],
+          parents: [
+            {
+              id: 'p-1',
+              sender: 'CampusSetu System',
+              role: 'Automated',
+              kind: 'Announcement',
+              body: 'Morning campus entry verified for TY BCA Semester V (Section A).',
+              time: '08:54 AM',
+            },
+            {
+              id: 'p-2',
+              sender: 'Rajesh Sharma',
+              role: 'Parent • Roll 01',
+              kind: 'Message',
+              body: 'Received today’s attendance and lecture material updates.',
+              time: '10:19 AM',
+            },
+          ],
+        },
+        attendanceRate: 88,
+        subjectAttendance: {
+          'Data Structures': 100,
+          'Operating Systems': 90,
+          'Database Management Systems': 85,
+          'Web Technologies': 80,
+        },
+        shareLocation: true,
+        geofence: {
+          inside: true,
+          checkpoint: 'Main Academic Block',
+          lastEntry: '08:53 AM',
+          lastExit: '04:15 PM',
+        },
+        facultyNoticeUnread: 1,
+        poll: {
+          question: 'Schedule extra Data Structures problem-solving hour on Friday?',
+          yes: 44,
+          no: 6,
+          choice: null,
+        },
+      };
+
+      const cloneInitial = () => JSON.parse(JSON.stringify(INITIAL_DATA));
+
+      // --- LIVE APPLICATION STATE ---
+      let state = cloneInitial();
+      let activeView = 'cr';
+      let rosterFilter = 'ALL';
+      let noteFormat = 'PDF';
+      let studentNoteFilter = 'ALL';
+      let studentNoteQuery = '';
+      let activeChannel = 'class';
+      let channelKindFilter = 'ALL';
+      let bannerData = null;
+
+      // Safe HTML escaping helper
+      const escapeHtml = (str) =>
+        String(str ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+
+      const nowLabel = () =>
+        new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      const pushUpdate = ({ category, title, detail }) => {
+        const stamp = nowLabel();
+        state.alerts.unshift({
+          id: `al-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          category,
+          title,
+          detail,
+          timestamp: stamp,
+        });
+        bannerData = { title, detail, timestamp: stamp };
+        renderAll();
+      };
+
+      // --- VIEW SWITCHING ---
+      const setView = (viewName) => {
+        activeView = viewName;
+        document.querySelectorAll('.view-section').forEach((sec) => {
+          sec.classList.toggle('hidden', sec.id !== `view-${viewName}`);
+        });
+
+        document.querySelectorAll('.nav-btn-desktop').forEach((btn) => {
+          const isActive = btn.dataset.view === viewName;
+          btn.className = isActive
+            ? 'nav-btn-desktop w-full text-left px-3 py-2.5 rounded-lg flex items-center justify-between gap-2 transition-colors cursor-pointer bg-slate-900 text-white'
+            : 'nav-btn-desktop w-full text-left px-3 py-2.5 rounded-lg flex items-center justify-between gap-2 transition-colors cursor-pointer text-slate-700 hover:bg-slate-100';
+          const desc = btn.querySelector('.nav-desc');
+          if (desc) {
+            desc.className = isActive
+              ? 'nav-desc text-[11px] truncate text-slate-300'
+              : 'nav-desc text-[11px] truncate text-slate-500';
+          }
+        });
+
+        document.querySelectorAll('.nav-btn-mobile').forEach((btn) => {
+          const isActive = btn.dataset.view === viewName;
+          btn.className = isActive
+            ? 'nav-btn-mobile inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors cursor-pointer bg-slate-900 text-white'
+            : 'nav-btn-mobile inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors cursor-pointer text-slate-600 hover:bg-slate-100 hover:text-slate-900';
+        });
+      };
+
+      // --- RENDER FUNCTIONS ---
+      const renderHeaderAndSnapshot = () => {
+        const c = state.classInfo;
+        document.getElementById('headerClassBadge').textContent =
+          `${c.program} • ${c.semester} (${c.section}) • Room ${c.room}`;
+        document.getElementById('snapClassSection').textContent = `${c.program} (${c.section})`;
+        document.getElementById('snapRoom').textContent = `Room ${c.room}`;
+        document.getElementById('snapStrength').textContent = String(c.strength);
+        document.getElementById('snapAttendance').textContent = `${state.attendanceRate}%`;
+
+        const geoEl = document.getElementById('snapGeofence');
+        geoEl.textContent = state.geofence.inside ? 'Inside Campus' : 'Outside Campus';
+        geoEl.className = state.geofence.inside
+          ? 'font-medium text-emerald-700'
+          : 'font-medium text-amber-700';
+
+        const badge = document.getElementById('facultyBadgeCount');
+        badge.textContent = String(state.facultyNoticeUnread);
+        badge.classList.toggle('hidden', state.facultyNoticeUnread <= 0);
+
+        const bannerEl = document.getElementById('statusBanner');
+        if (bannerData) {
+          bannerEl.classList.remove('hidden');
+          document.getElementById('bannerTitle').textContent = bannerData.title;
+          document.getElementById('bannerDetail').textContent = `— ${bannerData.detail}`;
+          document.getElementById('bannerTimestamp').textContent = bannerData.timestamp;
+        } else {
+          bannerEl.classList.add('hidden');
+        }
+      };
+
+      const renderCrView = () => {
+        const c = state.classInfo;
+        document.getElementById('crNameLabel').textContent = `CR: ${c.crName}`;
+        document.getElementById('inputProgram').value = c.program;
+        document.getElementById('inputSemester').value = c.semester;
+        document.getElementById('inputSection').value = c.section;
+        document.getElementById('inputRoom').value = c.room;
+        document.getElementById('inputStrength').value = c.strength;
+        document.getElementById('rosterCountLabel').textContent = `${c.strength} total`;
+
+        document.getElementById('crRosterList').innerHTML = state.roster
+          .map(
+            (st) => `
+            <div class="py-2 flex items-center justify-between">
+              <div>
+                <span class="font-mono text-slate-400 mr-2">#${escapeHtml(st.roll)}</span>
+                <span class="font-medium text-slate-800">${escapeHtml(st.name)}</span>
+              </div>
+              <span class="text-slate-500">${escapeHtml(st.status)}</span>
+            </div>`
+          )
+          .join('');
+
+        document.getElementById('timetableBody').innerHTML = state.timetable
+          .map(
+            (row) => `
+            <tr class="hover:bg-slate-50/60">
+              <td class="py-2.5 px-4 font-medium text-slate-900 whitespace-nowrap">${escapeHtml(row.day)}</td>
+              <td class="py-2.5 px-4">
+                <input
+                  type="text"
+                  data-tt-id="${escapeHtml(row.id)}"
+                  data-tt-field="subject"
+                  value="${escapeHtml(row.subject)}"
+                  class="tt-inline-input w-full px-2.5 py-1 rounded border border-slate-200 bg-white text-slate-800 focus:outline-none focus:border-blue-600"
+                />
+              </td>
+              <td class="py-2.5 px-4">
+                <input
+                  type="text"
+                  data-tt-id="${escapeHtml(row.id)}"
+                  data-tt-field="time"
+                  value="${escapeHtml(row.time)}"
+                  class="tt-inline-input w-28 px-2.5 py-1 rounded border border-slate-200 bg-white text-slate-800 font-mono focus:outline-none focus:border-blue-600"
+                />
+              </td>
+              <td class="py-2.5 px-4 text-slate-600 whitespace-nowrap">${escapeHtml(row.faculty)}</td>
+            </tr>`
+          )
+          .join('');
+      };
+
+      const renderTeacherView = () => {
+        document.getElementById('attendanceSubtitle').textContent =
+          `Data Structures • 10:00 AM • Room ${state.classInfo.room}`;
+
+        document.querySelectorAll('.roster-filter-btn').forEach((btn) => {
+          const active = btn.dataset.filter === rosterFilter;
+          btn.className = active
+            ? 'roster-filter-btn px-2 py-1 rounded text-[11px] font-medium cursor-pointer bg-slate-900 text-white'
+            : 'roster-filter-btn px-2 py-1 rounded text-[11px] font-medium cursor-pointer text-slate-600 hover:bg-slate-100';
+        });
+
+        const visibleRoster =
+          rosterFilter === 'ALL'
+            ? state.roster
+            : state.roster.filter((s) => s.status.toUpperCase() === rosterFilter);
+
+        document.getElementById('teacherRosterList').innerHTML = visibleRoster
+          .map((st) => {
+            const badgeStyle =
+              st.status === 'Present'
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                : st.status === 'Absent'
+                ? 'bg-rose-50 text-rose-700 border-rose-200'
+                : 'bg-amber-50 text-amber-700 border-amber-200';
+            return `
+              <div class="py-2.5 flex items-center justify-between gap-2 text-xs">
+                <div>
+                  <span class="font-mono text-slate-400 mr-2">${escapeHtml(st.roll)}</span>
+                  <span class="font-medium text-slate-900">${escapeHtml(st.name)}</span>
+                </div>
+                <button
+                  type="button"
+                  data-cycle-student="${escapeHtml(st.id)}"
+                  class="cycle-student-btn px-2.5 py-1 rounded-md border font-medium cursor-pointer ${badgeStyle}"
+                  title="Click to cycle status"
+                >
+                  ${escapeHtml(st.status)}
+                </button>
+              </div>`;
+          })
+          .join('');
+
+        document.querySelectorAll('.note-format-choice').forEach((btn) => {
+          const active = btn.dataset.format === noteFormat;
+          btn.className = active
+            ? 'note-format-choice py-2 rounded-lg border font-medium cursor-pointer bg-slate-900 text-white border-slate-900'
+            : 'note-format-choice py-2 rounded-lg border font-medium cursor-pointer bg-white text-slate-700 border-slate-300 hover:bg-slate-50';
+        });
+
+        const latest = state.notes[0];
+        document.getElementById('recentNotePreview').innerHTML = latest
+          ? `Recent upload: <span class="font-medium text-slate-800">${escapeHtml(latest.title)}</span> (${escapeHtml(latest.size)})`
+          : 'No uploads yet.';
+
+        document.getElementById('freeLecturesContainer').innerHTML = state.freeSlots
+          .map(
+            (slot) => `
+            <div class="bg-white rounded-xl border border-slate-200 p-5 space-y-5">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h2 class="text-sm font-semibold text-slate-900">Free Lecture Management</h2>
+                    <span class="px-2 py-0.5 rounded text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      ${slot.status === 'ASSIGNED' ? `Assigned: ${escapeHtml(slot.assignedTo)}` : 'Open for Volunteers'}
+                    </span>
+                  </div>
+                  <p class="text-xs text-slate-500 mt-1">
+                    ${escapeHtml(slot.subject)} • ${escapeHtml(slot.slot)} • ${escapeHtml(slot.room)} • ${escapeHtml(slot.reason)}
+                  </p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-3">
+                  <div class="text-xs font-semibold text-slate-700">Faculty Volunteers</div>
+                  <div class="divide-y divide-slate-100 border border-slate-200 rounded-lg px-3">
+                    ${slot.volunteers
+                      .map(
+                        (vol) => `
+                        <div class="py-2.5 flex items-center justify-between gap-2 text-xs">
+                          <div>
+                            <div class="font-medium text-slate-900">${escapeHtml(vol.name)}</div>
+                            <div class="text-[11px] text-slate-500">${escapeHtml(vol.dept)}</div>
+                          </div>
+                          <button
+                            type="button"
+                            data-slot-id="${escapeHtml(slot.id)}"
+                            data-vol-id="${escapeHtml(vol.id)}"
+                            class="toggle-vol-btn px-2.5 py-1 rounded-md border text-[11px] font-medium cursor-pointer ${
+                              vol.volunteered
+                                ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'
+                            }"
+                          >
+                            ${vol.volunteered ? 'Volunteered' : 'Volunteer'}
+                          </button>
+                        </div>`
+                      )
+                      .join('')}
+                  </div>
+
+                  <form data-slot-id="${escapeHtml(slot.id)}" class="add-volunteer-form flex gap-2">
+                    <input
+                      type="text"
+                      class="volunteer-name-input flex-1 px-3 py-1.5 rounded-lg border border-slate-300 text-xs focus:outline-none focus:border-blue-600"
+                      placeholder="Add faculty volunteer name"
+                    />
+                    <button
+                      type="submit"
+                      class="px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-xs font-medium cursor-pointer"
+                    >
+                      Add
+                    </button>
+                  </form>
+                </div>
+
+                <div class="bg-slate-50 rounded-lg border border-slate-200 p-4 flex flex-col justify-between space-y-4 text-xs">
+                  <div class="space-y-2">
+                    <div class="font-semibold text-slate-900">Assignment Summary</div>
+                    <p class="text-slate-600 leading-relaxed">
+                      Confirming assigns <span class="font-semibold text-slate-900">${escapeHtml(slot.assignedTo)}</span>
+                      to take <span class="font-medium text-slate-900">${escapeHtml(slot.subject)}</span> in
+                      <span class="font-medium text-slate-900">${escapeHtml(slot.room)}</span> and logs an update for
+                      students and parents.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    data-confirm-slot="${escapeHtml(slot.id)}"
+                    class="confirm-slot-btn w-full py-2 px-4 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-medium transition-colors cursor-pointer"
+                  >
+                    Confirm Assignment
+                  </button>
+                </div>
+              </div>
+            </div>`
+          )
+          .join('');
+      };
+
+      const renderStudentView = () => {
+        const c = state.classInfo;
+        document.getElementById('studentHeaderMeta').textContent =
+          `Rahul Sharma • Roll 01 • ${c.program} ${c.semester} (${c.section})`;
+        document.getElementById('studentOverallRate').textContent = `${state.attendanceRate}%`;
+
+        const eligBadge = document.getElementById('studentEligibilityBadge');
+        const eligible = state.attendanceRate >= 75;
+        eligBadge.textContent = eligible ? 'Eligible' : 'Low';
+        eligBadge.className = eligible
+          ? 'text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200'
+          : 'text-xs font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200';
+
+        document.getElementById('subjectAttendanceList').innerHTML = Object.entries(state.subjectAttendance)
+          .map(
+            ([subj, pct]) => `
+            <div class="space-y-1">
+              <div class="flex justify-between">
+                <span class="text-slate-700 truncate pr-2">${escapeHtml(subj)}</span>
+                <span class="font-medium text-slate-900">${pct}%</span>
+              </div>
+              <div class="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                <div class="h-full bg-blue-600 rounded-full transition-all" style="width: ${pct}%"></div>
+              </div>
+            </div>`
+          )
+          .join('');
+
+        document.querySelectorAll('.student-note-filter').forEach((btn) => {
+          const active = btn.dataset.noteFilter === studentNoteFilter;
+          btn.className = active
+            ? 'student-note-filter px-2.5 py-1 rounded-md border font-medium cursor-pointer bg-slate-900 text-white border-slate-900'
+            : 'student-note-filter px-2.5 py-1 rounded-md border font-medium cursor-pointer bg-white text-slate-600 border-slate-300 hover:bg-slate-50';
+        });
+
+        const filteredNotes = state.notes.filter((item) => {
+          const matchesFmt = studentNoteFilter === 'ALL' || item.format === studentNoteFilter;
+          const q = studentNoteQuery.trim().toLowerCase();
+          const matchesQuery =
+            !q ||
+            item.title.toLowerCase().includes(q) ||
+            item.subject.toLowerCase().includes(q) ||
+            item.author.toLowerCase().includes(q);
+          return matchesFmt && matchesQuery;
+        });
+
+        document.getElementById('studentNotesList').innerHTML = filteredNotes
+          .map(
+            (item) => `
+            <div class="py-3 flex items-center justify-between gap-3 text-xs">
+              <div class="min-w-0">
+                <div class="font-medium text-slate-900 truncate">${escapeHtml(item.title)}</div>
+                <div class="text-[11px] text-slate-500 mt-0.5">
+                  ${escapeHtml(item.subject)} • ${escapeHtml(item.author)} • ${escapeHtml(item.size)} • ${escapeHtml(item.uploadedAt)}
+                </div>
+              </div>
+              <button
+                type="button"
+                data-preview-note="${escapeHtml(item.id)}"
+                class="preview-note-btn px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-medium shrink-0 cursor-pointer"
+              >
+                Preview
+              </button>
+            </div>`
+          )
+          .join('');
+
+        const shareBtn = document.getElementById('toggleShareLocationBtn');
+        shareBtn.textContent = state.shareLocation ? 'Sharing Active' : 'Paused';
+        shareBtn.className = state.shareLocation
+          ? 'px-3 py-1.5 rounded-lg font-medium border cursor-pointer bg-emerald-50 text-emerald-700 border-emerald-200'
+          : 'px-3 py-1.5 rounded-lg font-medium border cursor-pointer bg-slate-100 text-slate-600 border-slate-300';
+
+        document.getElementById('studentGeofenceBox').innerHTML = `
+          <div class="font-medium text-slate-900">${escapeHtml(state.geofence.checkpoint)}</div>
+          <div class="text-slate-600">
+            Status: ${state.geofence.inside ? 'Inside Campus' : 'Outside Campus'} • Last Entry: ${escapeHtml(state.geofence.lastEntry)}
+          </div>`;
+
+        document.getElementById('studentTimetableList').innerHTML = state.timetable
+          .map(
+            (slot) => `
+            <div class="py-2 flex items-center justify-between gap-2">
+              <div>
+                <span class="font-semibold text-slate-900">${escapeHtml(slot.day)}</span>
+                <span class="text-slate-400 mx-2">&bull;</span>
+                <span class="text-slate-700">${escapeHtml(slot.subject)}</span>
+              </div>
+              <span class="font-mono text-slate-500 shrink-0">${escapeHtml(slot.time)}</span>
+            </div>`
+          )
+          .join('');
+      };
+
+      const renderParentView = () => {
+        const c = state.classInfo;
+        document.getElementById('parentHeaderMeta').textContent =
+          `Monitoring Rahul Sharma • ${c.program} (${c.section})`;
+        document.getElementById('parentAttendanceRate').textContent = `${state.attendanceRate}%`;
+        document.getElementById('parentCampusStatus').textContent =
+          state.geofence.inside ? 'Inside Campus' : 'Exited Campus';
+        document.getElementById('parentCampusTime').textContent = state.geofence.inside
+          ? `Entry at ${state.geofence.lastEntry}`
+          : `Exit at ${state.geofence.lastExit}`;
+        document.getElementById('parentNotesCount').textContent = String(state.notes.length);
+        document.getElementById('parentLatestNote').textContent =
+          state.notes[0] ? `Latest: ${state.notes[0].title}` : 'No notes';
+
+        document.getElementById('parentAlertsList').innerHTML = state.alerts
+          .map(
+            (al) => `
+            <div class="py-3 text-xs space-y-0.5">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-semibold text-slate-900">${escapeHtml(al.title)}</span>
+                <span class="text-[11px] font-mono text-slate-400 shrink-0">${escapeHtml(al.timestamp)}</span>
+              </div>
+              <p class="text-slate-600">${escapeHtml(al.detail)}</p>
+            </div>`
+          )
+          .join('');
+
+        document.getElementById('parentGeofenceBox').innerHTML = `
+          <div class="font-medium text-slate-900">${escapeHtml(state.geofence.checkpoint)}</div>
+          <div class="text-slate-600">
+            Last Entry: ${escapeHtml(state.geofence.lastEntry)} • Last Exit: ${escapeHtml(state.geofence.lastExit)}
+          </div>`;
+      };
+
+      const renderGroupsView = () => {
+        document.querySelectorAll('.channel-tab').forEach((btn) => {
+          const active = btn.dataset.channel === activeChannel;
+          btn.className = active
+            ? 'channel-tab px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer bg-slate-900 text-white'
+            : 'channel-tab px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer text-slate-600 hover:bg-slate-100';
+        });
+
+        const list = state.threads[activeChannel] || [];
+        const visible =
+          channelKindFilter === 'ALL' ? list : list.filter((m) => m.kind === channelKindFilter);
+
+        document.getElementById('channelMessagesList').innerHTML = visible
+          .map(
+            (msg) => `
+            <div class="p-3.5 rounded-lg bg-slate-50 border border-slate-200/80 text-xs space-y-1.5">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="font-semibold text-slate-900">${escapeHtml(msg.sender)}</span>
+                  <span class="text-[11px] text-slate-500">${escapeHtml(msg.role)}</span>
+                </div>
+                <span class="text-[11px] font-mono text-slate-400">${escapeHtml(msg.time)}</span>
+              </div>
+              <p class="text-slate-700 leading-relaxed">${escapeHtml(msg.body)}</p>
+              ${
+                msg.file
+                  ? `<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-white border border-slate-200 text-[11px] font-medium text-blue-700">${escapeHtml(msg.file)}</div>`
+                  : ''
+              }
+            </div>`
+          )
+          .join('');
+
+        const total = Math.max(1, state.poll.yes + state.poll.no);
+        const yesPct = Math.round((state.poll.yes / total) * 100);
+        const noPct = 100 - yesPct;
+
+        document.getElementById('pollQuestionText').textContent = state.poll.question;
+        document.getElementById('voteYesPct').textContent = `${yesPct}%`;
+        document.getElementById('voteNoPct').textContent = `${noPct}%`;
+        document.getElementById('pollTotalVotes').textContent = `Total votes: ${state.poll.yes + state.poll.no}`;
+
+        const yesBtn = document.getElementById('voteYesBtn');
+        const noBtn = document.getElementById('voteNoBtn');
+        yesBtn.className =
+          state.poll.choice === 'yes'
+            ? 'w-full py-2 px-3 rounded-lg border text-left font-medium flex justify-between cursor-pointer bg-blue-50 border-blue-300 text-blue-900'
+            : 'w-full py-2 px-3 rounded-lg border text-left font-medium flex justify-between cursor-pointer bg-white border-slate-300 text-slate-800 hover:bg-slate-50';
+        noBtn.className =
+          state.poll.choice === 'no'
+            ? 'w-full py-2 px-3 rounded-lg border text-left font-medium flex justify-between cursor-pointer bg-blue-50 border-blue-300 text-blue-900'
+            : 'w-full py-2 px-3 rounded-lg border text-left font-medium flex justify-between cursor-pointer bg-white border-slate-300 text-slate-800 hover:bg-slate-50';
+      };
+
+      const renderAll = () => {
+        renderHeaderAndSnapshot();
+        renderCrView();
+        renderTeacherView();
+        renderStudentView();
+        renderParentView();
+        renderGroupsView();
+      };
+
+      // --- EVENT LISTENERS ---
+      document.querySelectorAll('[data-view]').forEach((btn) => {
+        btn.addEventListener('click', () => setView(btn.dataset.view));
+      });
+
+      document.getElementById('dismissBannerBtn').addEventListener('click', () => {
+        bannerData = null;
+        renderHeaderAndSnapshot();
+      });
+
+      document.getElementById('resetPrototypeBtn').addEventListener('click', () => {
+        state = cloneInitial();
+        rosterFilter = 'ALL';
+        noteFormat = 'PDF';
+        studentNoteFilter = 'ALL';
+        studentNoteQuery = '';
+        activeChannel = 'class';
+        channelKindFilter = 'ALL';
+        document.getElementById('studentNoteSearch').value = '';
+        bannerData = {
+          title: 'Prototype reset',
+          detail: 'All class records, attendance logs, and messages restored to initial state.',
+          timestamp: nowLabel(),
+        };
+        renderAll();
+      });
+
+      // Faculty Notice Modal
+      const facultyModal = document.getElementById('facultyNoticeModal');
+      document.getElementById('facultyNoticeBtn').addEventListener('click', () => {
+        state.facultyNoticeUnread = 0;
+        const c = state.classInfo;
+        document.getElementById('facultyModalBody').innerHTML = `
+          <p>Latest class record for <strong class="text-slate-900">${escapeHtml(c.program)} ${escapeHtml(c.semester)} (${escapeHtml(c.section)})</strong>:</p>
+          <ul class="list-disc pl-4 space-y-1 text-slate-700">
+            <li>Venue: Room ${escapeHtml(c.room)}</li>
+            <li>Total Students: ${escapeHtml(c.strength)}</li>
+            <li>Updated by: ${escapeHtml(c.crName)}</li>
+          </ul>`;
+        facultyModal.classList.remove('hidden');
+        renderHeaderAndSnapshot();
+      });
+
+      const closeFacultyModal = () => facultyModal.classList.add('hidden');
+      document.getElementById('closeFacultyModalBtn').addEventListener('click', closeFacultyModal);
+      document.getElementById('doneFacultyModalBtn').addEventListener('click', closeFacultyModal);
+
+      // CR Forms & Timetable
+      document.getElementById('classDetailsForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        state.classInfo.program = document.getElementById('inputProgram').value.trim() || state.classInfo.program;
+        state.classInfo.semester = document.getElementById('inputSemester').value;
+        state.classInfo.section = document.getElementById('inputSection').value.trim() || state.classInfo.section;
+        state.classInfo.room = document.getElementById('inputRoom').value.trim() || state.classInfo.room;
+        state.classInfo.strength = Number(document.getElementById('inputStrength').value) || state.classInfo.strength;
+        state.facultyNoticeUnread += 1;
+
+        state.freeSlots.forEach((slot) => {
+          slot.room = `Room ${state.classInfo.room}`;
+        });
+
+        state.threads.faculty.push({
+          id: `f-${Date.now()}`,
+          sender: state.classInfo.crName,
+          role: `CR • ${state.classInfo.program}`,
+          kind: 'Announcement',
+          body: `Updated class details for ${state.classInfo.program} ${state.classInfo.semester} (${state.classInfo.section}). Current venue: Room ${state.classInfo.room}.`,
+          time: nowLabel(),
+        });
+
+        pushUpdate({
+          category: 'Timetable',
+          title: 'Class details updated by CR',
+          detail: `${state.classInfo.program} ${state.classInfo.semester} (${state.classInfo.section}) • Room ${state.classInfo.room} • ${state.classInfo.strength} students`,
+        });
+      });
+
+      document.getElementById('addStudentForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const input = document.getElementById('newStudentInput');
+        const clean = input.value.trim();
+        if (!clean) return;
+        const nextRoll = String(state.roster.length + 1).padStart(2, '0');
+        state.roster.push({ id: `st-${Date.now()}`, roll: nextRoll, name: clean, status: 'Present' });
+        state.classInfo.strength += 1;
+        input.value = '';
+
+        pushUpdate({
+          category: 'Attendance',
+          title: 'Student added to class roster',
+          detail: `${clean} (Roll ${nextRoll}) added to ${state.classInfo.program} (${state.classInfo.section}).`,
+        });
+      });
+
+      document.getElementById('crNoticeForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const input = document.getElementById('crNoticeInput');
+        const clean = input.value.trim();
+        if (!clean) return;
+        input.value = '';
+
+        state.threads.class.push({
+          id: `c-${Date.now()}`,
+          sender: state.classInfo.crName,
+          role: `CR • ${state.classInfo.program}`,
+          kind: 'Announcement',
+          body: clean,
+          time: nowLabel(),
+        });
+
+        pushUpdate({
+          category: 'Timetable',
+          title: 'Class announcement posted',
+          detail: clean,
+        });
+      });
+
+      document.getElementById('timetableBody').addEventListener('change', (e) => {
+        const target = e.target;
+        if (!target.classList.contains('tt-inline-input')) return;
+        const row = state.timetable.find((r) => r.id === target.dataset.ttId);
+        if (row) {
+          row[target.dataset.ttField] = target.value;
+        }
+      });
+
+      document.getElementById('saveTimetableBtn').addEventListener('click', () => {
+        pushUpdate({
+          category: 'Timetable',
+          title: 'Weekly timetable published',
+          detail: `${state.classInfo.program} (${state.classInfo.section}) schedule synced across student and faculty views.`,
+        });
+      });
+
+      // Teacher Attendance & Notes
+      document.querySelectorAll('.roster-filter-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          rosterFilter = btn.dataset.filter;
+          renderTeacherView();
+        });
+      });
+
+      document.getElementById('teacherRosterList').addEventListener('click', (e) => {
+        const btn = e.target.closest('.cycle-student-btn');
+        if (!btn) return;
+        const student = state.roster.find((s) => s.id === btn.dataset.cycleStudent);
+        if (!student) return;
+        const order = ['Present', 'Absent', 'Late'];
+        student.status = order[(order.indexOf(student.status) + 1) % order.length];
+        renderTeacherView();
+      });
+
+      document.getElementById('submitAttendanceBtn').addEventListener('click', () => {
+        const rahul = state.roster.find((s) => s.name === 'Rahul Sharma');
+        const presentTotal = state.roster.filter((s) => s.status === 'Present').length;
+        const rahulPresent = rahul && rahul.status === 'Present';
+
+        state.attendanceRate = rahulPresent
+          ? Math.min(100, state.attendanceRate + 1)
+          : Math.max(65, state.attendanceRate - 2);
+        state.subjectAttendance['Data Structures'] = rahulPresent
+          ? Math.min(100, state.subjectAttendance['Data Structures'] + 1)
+          : Math.max(65, state.subjectAttendance['Data Structures'] - 2);
+
+        pushUpdate({
+          category: 'Attendance',
+          title: `Attendance submitted (${presentTotal}/${state.roster.length} present)`,
+          detail: `Rahul Sharma marked ${rahul ? rahul.status : 'Present'} • Overall attendance: ${state.attendanceRate}%`,
+        });
+      });
+
+      document.querySelectorAll('.note-format-choice').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          noteFormat = btn.dataset.format;
+          renderTeacherView();
+        });
+      });
+
+      document.getElementById('uploadNoteForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const subj = document.getElementById('noteSubjectSelect').value;
+        const titleInput = document.getElementById('noteTitleInput');
+        const ext = noteFormat === 'PDF' ? '.pdf' : '.pptx';
+        const raw = titleInput.value.trim() || `DS_Lecture_03_Graphs${ext}`;
+        const filename = raw.toLowerCase().endsWith(ext) ? raw : `${raw}${ext}`;
+
+        state.notes.unshift({
+          id: `n-${Date.now()}`,
+          subject: subj,
+          title: filename,
+          size: noteFormat === 'PDF' ? '2.6 MB' : '3.4 MB',
+          format: noteFormat,
+          author: 'Prof. Anjali Verma',
+          uploadedAt: `Today, ${nowLabel()}`,
+        });
+        titleInput.value = '';
+
+        state.threads.class.push({
+          id: `c-${Date.now()}`,
+          sender: 'Prof. Anjali Verma',
+          role: 'Faculty',
+          kind: 'Note',
+          body: `Shared ${subj} study material.`,
+          file: filename,
+          time: nowLabel(),
+        });
+
+        pushUpdate({
+          category: 'Coursework',
+          title: 'Lecture notes uploaded',
+          detail: `${filename} (${subj}) is now available to students and parents.`,
+        });
+      });
+
+      // Free Lecture Delegation
+      const freeLecturesContainer = document.getElementById('freeLecturesContainer');
+      freeLecturesContainer.addEventListener('click', (e) => {
+        const volBtn = e.target.closest('.toggle-vol-btn');
+        if (volBtn) {
+          const slot = state.freeSlots.find((s) => s.id === volBtn.dataset.slotId);
+          const vol = slot && slot.volunteers.find((v) => v.id === volBtn.dataset.volId);
+          if (slot && vol) {
+            vol.volunteered = !vol.volunteered;
+            if (vol.volunteered) {
+              slot.assignedTo = vol.name;
+            }
+            renderTeacherView();
+          }
+          return;
+        }
+
+        const confirmBtn = e.target.closest('.confirm-slot-btn');
+        if (confirmBtn) {
+          const slot = state.freeSlots.find((s) => s.id === confirmBtn.dataset.confirmSlot);
+          if (!slot) return;
+          const teacher =
+            slot.assignedTo ||
+            (slot.volunteers.find((v) => v.volunteered) && slot.volunteers.find((v) => v.volunteered).name) ||
+            'Prof. Anjali Verma';
+          slot.status = 'ASSIGNED';
+          slot.assignedTo = teacher;
+
+          pushUpdate({
+            category: 'Timetable',
+            title: `Free lecture assigned to ${teacher}`,
+            detail: `${slot.subject} (${slot.slot}, ${slot.room}) confirmed; students and parents notified.`,
+          });
+        }
+      });
+
+      freeLecturesContainer.addEventListener('submit', (e) => {
+        const form = e.target.closest('.add-volunteer-form');
+        if (!form) return;
+        e.preventDefault();
+        const input = form.querySelector('.volunteer-name-input');
+        const clean = input.value.trim();
+        if (!clean) return;
+        const slot = state.freeSlots.find((s) => s.id === form.dataset.slotId);
+        if (slot) {
+          slot.volunteers.push({
+            id: `v-${Date.now()}`,
+            name: clean,
+            dept: 'Computer Applications',
+            volunteered: true,
+          });
+          slot.assignedTo = clean;
+          input.value = '';
+          renderTeacherView();
+        }
+      });
+
+      // Student Notes & Geofence
+      document.querySelectorAll('.student-note-filter').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          studentNoteFilter = btn.dataset.noteFilter;
+          renderStudentView();
+        });
+      });
+
+      document.getElementById('studentNoteSearch').addEventListener('input', (e) => {
+        studentNoteQuery = e.target.value;
+        renderStudentView();
+      });
+
+      const noteModal = document.getElementById('notePreviewModal');
+      document.getElementById('studentNotesList').addEventListener('click', (e) => {
+        const btn = e.target.closest('.preview-note-btn');
+        if (!btn) return;
+        const item = state.notes.find((n) => n.id === btn.dataset.previewNote);
+        if (!item) return;
+        document.getElementById('noteModalTitle').textContent = item.title;
+        document.getElementById('noteModalBody').innerHTML = `
+          <div><strong class="text-slate-900">Subject:</strong> ${escapeHtml(item.subject)}</div>
+          <div><strong class="text-slate-900">Uploaded by:</strong> ${escapeHtml(item.author)}</div>
+          <div><strong class="text-slate-900">File info:</strong> ${escapeHtml(item.format)} • ${escapeHtml(item.size)} • ${escapeHtml(item.uploadedAt)}</div>`;
+        noteModal.classList.remove('hidden');
+      });
+
+      const closeNoteModal = () => noteModal.classList.add('hidden');
+      document.getElementById('closeNoteModalBtn').addEventListener('click', closeNoteModal);
+      document.getElementById('doneNoteModalBtn').addEventListener('click', closeNoteModal);
+
+      document.getElementById('toggleShareLocationBtn').addEventListener('click', () => {
+        state.shareLocation = !state.shareLocation;
+        pushUpdate({
+          category: 'Campus Safety',
+          title: state.shareLocation ? 'Location sharing enabled' : 'Location sharing paused',
+          detail: state.shareLocation
+            ? 'Rahul Sharma’s campus geofence status is visible to parents.'
+            : 'Rahul Sharma paused real-time location sharing.',
+        });
+      });
+
+      const triggerGeofence = (isEntry) => {
+        const stamp = nowLabel();
+        state.geofence.inside = isEntry;
+        state.geofence.checkpoint = isEntry ? 'Main Gate • Academic Block' : 'South Exit Gate';
+        if (isEntry) {
+          state.geofence.lastEntry = stamp;
+        } else {
+          state.geofence.lastExit = stamp;
+        }
+        pushUpdate({
+          category: 'Campus Safety',
+          title: isEntry ? 'Entered college campus' : 'Left college campus',
+          detail: `Rahul Sharma • ${isEntry ? 'Entry' : 'Exit'} recorded at ${stamp}`,
+        });
+      };
+
+      document.getElementById('studentEnterCampusBtn').addEventListener('click', () => triggerGeofence(true));
+      document.getElementById('studentExitCampusBtn').addEventListener('click', () => triggerGeofence(false));
+      document.getElementById('parentEnterCampusBtn').addEventListener('click', () => triggerGeofence(true));
+      document.getElementById('parentExitCampusBtn').addEventListener('click', () => triggerGeofence(false));
+
+      // Groups & Polls
+      document.querySelectorAll('.channel-tab').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          activeChannel = btn.dataset.channel;
+          renderGroupsView();
+        });
+      });
+
+      document.getElementById('channelKindFilter').addEventListener('change', (e) => {
+        channelKindFilter = e.target.value;
+        renderGroupsView();
+      });
+
+      document.getElementById('channelMessageForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const input = document.getElementById('messageDraftInput');
+        const clean = input.value.trim();
+        if (!clean) return;
+        const kind = document.getElementById('messageKindSelect').value;
+        const senderRole =
+          activeView === 'parent' ? 'Parent' : activeView === 'teacher' ? 'Faculty' : 'Student';
+
+        state.threads[activeChannel].push({
+          id: `msg-${Date.now()}`,
+          sender: 'You',
+          role: senderRole,
+          kind,
+          body: clean,
+          time: nowLabel(),
+        });
+        input.value = '';
+        renderGroupsView();
+      });
+
+      const castVote = (option) => {
+        if (state.poll.choice === option) return;
+        state.poll.yes += option === 'yes' ? 1 : state.poll.choice === 'yes' ? -1 : 0;
+        state.poll.no += option === 'no' ? 1 : state.poll.choice === 'no' ? -1 : 0;
+        state.poll.choice = option;
+        renderGroupsView();
+      };
+
+      document.getElementById('voteYesBtn').addEventListener('click', () => castVote('yes'));
+      document.getElementById('voteNoBtn').addEventListener('click', () => castVote('no'));
+
+      // Initial render
+      renderAll();
+    })();
+  </script>
+</body>
+</html>
